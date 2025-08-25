@@ -5,8 +5,6 @@ type Props = {
   onClickBox: (index: number) => void;
 };
 
-
-
 const Board = ({ board, onClickBox }: Props) => {
   return (
     <div className="grid grid-cols-[repeat(3,6rem)] justify-center">
