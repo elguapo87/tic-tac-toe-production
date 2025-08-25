@@ -32,23 +32,26 @@ const ScoreBoard = ({ scores, xPlaying, gameOver, winner }: Props) => {
                 </span>
             </div>
 
-            {
-                !gameOver
-                   &&
-                <p>{xPlaying}</p>
-            }
 
-            <div className={`text-2xl mx-auto ${gameOver && "-mb-9"}`}>
-                {
-                    gameOver && winner !== "Draw"
-                    &&
-                    <p className="text-green-500 font-semibold">Game Over - <span className="text-3xl">{winner}</span> won </p>
-                    ||
-                    gameOver && winner === "Draw"
-                    &&
-                    <p className="text-green-500 font-semibold">Game Over it's a {winner} </p>
-                }
-
+            {/* Turn indicator OR game over */}
+            <div className="text-2xl mx-auto -mb-9">
+                {!gameOver ? (
+                    <p className="font-semibold">
+                        {xPlaying ? (
+                            <span className="text-[rgb(255_70_37)]">X’s turn to play</span>
+                        ) : (
+                            <span className="text-[rgb(44_135_255)]">O’s turn to play</span>
+                        )}
+                    </p>
+                ) : winner !== "Draw" ? (
+                    <p className="text-green-500 font-semibold">
+                        Game Over – <span className="text-3xl">{winner}</span> won
+                    </p>
+                ) : (
+                    <p className="text-green-500 font-semibold">
+                        Game Over – it’s a Draw
+                    </p>
+                )}
             </div>
 
         </div>

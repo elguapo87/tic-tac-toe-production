@@ -1,6 +1,7 @@
 import { useState } from "react"
 import Board from "../components/Board"
 import ScoreBoard from "../components/ScoreBoard";
+import ResetButton from "../components/ResetButton";
 
 const Home = () => {
 
@@ -8,7 +9,6 @@ const Home = () => {
     const [xPlaying, setXPlaying] = useState(true);
     const [gameOver, setGameOver] = useState(false);
     const [scores, setScores] = useState({ xScore: 0, oScore: 0 });
-    const [gameStarted, setGameStarted] = useState(false);
     const [winner, setWinner] = useState<string | null>(null);
 
     const winningConditions = [
@@ -23,8 +23,6 @@ const Home = () => {
     ];
 
     const handleBoxClick = (boxIndex: number) => {
-        setGameStarted(true);
-
         const updatedBoard = board.map((item, index) => {
             if (boxIndex === index) {
                 return xPlaying ? "X" : "O";
@@ -61,11 +59,19 @@ const Home = () => {
         }
     };
 
+    const resetBoard = () => {
+        setBoard(Array(9).fill(null));
+        setGameOver(false);
+        setWinner(null);
+        setXPlaying(true);
+    };
+
 
     return (
         <div className="relative flex flex-col">
             <ScoreBoard scores={scores} xPlaying={xPlaying} gameOver={gameOver} winner={winner} />
             <Board board={board} onClickBox={gameOver ? () => {} : handleBoxClick} />
+            <ResetButton resetBoard={resetBoard} gameOver={gameOver} />
         </div>
     )
 }
