@@ -1,8 +1,10 @@
+import Board from "../components/Board"
+
 const Home = () => {
   return (
-    <div>
-      
-    </div>
+    <>
+      <Board />
+    </>
   )
 }
 
