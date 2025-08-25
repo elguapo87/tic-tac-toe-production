@@ -69,6 +69,7 @@ const Home = () => {
         setGameOver(false);
         setWinner(null);
         setXPlaying(true);
+        setWinningLine(null);
     };
 
 
