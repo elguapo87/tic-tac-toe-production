@@ -10,6 +10,7 @@ const Home = () => {
     const [gameOver, setGameOver] = useState(false);
     const [scores, setScores] = useState({ xScore: 0, oScore: 0 });
     const [winner, setWinner] = useState<string | null>(null);
+    const [winningLine, setWinningLine] = useState<number[] | null>(null)
 
     const winningConditions = [
         [0, 1, 2],
@@ -33,12 +34,16 @@ const Home = () => {
 
         setBoard(updatedBoard);
         setXPlaying(!xPlaying);
-        const winner = checkWinner(updatedBoard);
 
-        if (winner === "X") {
-            setScores((prev) => ({ ...prev, xScore: prev.xScore + 1 }));
-        } else if (winner === "O") {
-            setScores((prev) => ({ ...prev, oScore: prev.oScore + 1 }));
+        const result = checkWinner(updatedBoard);
+        if (result) {
+            if (result.winner === "X") {
+                setScores((prev) => ({ ...prev, xScore: prev.xScore + 1 }));
+            } else if (result.winner === "O") {
+                setScores((prev) => ({ ...prev, oScore: prev.oScore + 1 }));
+            }
+
+            setWinningLine(result.line);
         }
     };
 
@@ -48,7 +53,7 @@ const Home = () => {
             if (board[a] && board[a] === board[b] && board[b] === board[c]) {
                 setGameOver(true);
                 setWinner(board[a]);
-                return board[a]
+                return { winner: board[a], line: [a, b, c]}
             }
         }
 
@@ -70,7 +75,7 @@ const Home = () => {
     return (
         <div className="relative flex flex-col">
             <ScoreBoard scores={scores} xPlaying={xPlaying} gameOver={gameOver} winner={winner} />
-            <Board board={board} onClickBox={gameOver ? () => {} : handleBoxClick} />
+            <Board board={board} onClickBox={gameOver ? () => {} : handleBoxClick} winningLine={winningLine} />
             <ResetButton resetBoard={resetBoard} gameOver={gameOver} />
         </div>
     )
