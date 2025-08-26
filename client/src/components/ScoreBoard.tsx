@@ -52,7 +52,7 @@ const ScoreBoard = ({ scores, xPlaying, gameOver, winner }: Props) => {
                         Game Over – {winner} won
                     </p>
                 ) : (
-                    <p className="text-green-500 font-semibold">Game Over – it’s a Draw</p>
+                    <p className="text-stone-500 font-semibold">Game Over – it’s a Draw</p>
                 )}
             </div>
 
