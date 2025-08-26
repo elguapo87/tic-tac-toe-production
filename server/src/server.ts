@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import http from "http";
 import cors from "cors";
+import connectDB from "./config/db";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,6 +23,8 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
     try {
+        await connectDB();
+        
         server.listen(PORT, () => {
             console.log(`Server is running on PORT: ${PORT}`);
         });
