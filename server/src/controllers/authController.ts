@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
 import cloudinary from "../lib/cloudinary";
-import userModel from "../models/userModel";
+import userModel, { UserDocument } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import { genToken } from "../lib/genToken";
+
+interface AuthenticatedRequest extends Request {
+    user?: UserDocument;
+};
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -81,5 +85,18 @@ export const login = async (req: Request, res: Response) => {
     } catch (error) {
         const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
         res.json({ success: false, message: errMessage });
+    }
+};
+
+export const chechAuth = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const user = req.user;
+        if (!user) return res.status(401).json({ success: false, message: "Unauthorized" })
+        
+        res.status(200).json({ success: true, user });
+
+    } catch (error) {
+        const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        res.status(500).json({ success: false, message: errMessage });
     }
 };
