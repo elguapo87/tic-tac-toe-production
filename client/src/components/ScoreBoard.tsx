@@ -13,7 +13,7 @@ const ScoreBoard = ({ scores, xPlaying, gameOver, winner }: Props) => {
     const { xScore, oScore } = scores;
 
     return (
-        <div className="flex flex-col gap-3 w-[20rem] text-[1.5rem] my-[3rem] mx-auto font-bold">
+        <div className="flex flex-col gap-3 w-[20rem] text-[1.5rem] my-[3rem] mx-auto font-bold max-md:mt-20">
             <div className="flex items-center gap-5">
                 {/* XScore */}
                 <span
