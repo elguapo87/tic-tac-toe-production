@@ -37,13 +37,45 @@ export const register = async (req: Request, res: Response) => {
         res.json({
             success: true,
             message: "User created",
-            token,
             userData: {
                 _id: user._id,
-                name,
-                email,
-                userImg
-            }
+                name: user.name,
+                email: user.email,
+                userImg: user.userImg
+            },
+            token
+        });
+
+    } catch (error) {
+        const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        res.json({ success: false, message: errMessage });
+    }
+};
+
+export const login = async (req: Request, res: Response) => {
+    try {
+        const { email, password } = req.body;
+
+        const existingUser = await userModel.findOne({ email });
+        if (!existingUser) return res.json({ success: false, message: "User not exists" });
+
+        const matchPassword = await bcrypt.compare(password, existingUser.password);    
+        if (!matchPassword) return res.json({ success: false, message: "Wrong Credentials" });
+        
+        const userData = {
+            _id: existingUser._id,
+            name: existingUser.name,    
+            email: existingUser.email,
+            userImg: existingUser.userImg
+        };
+        
+        const token = genToken(existingUser._id);
+
+        res.json({
+            success: true, 
+            message: "You are logged in",
+            userData,
+            token
         });
 
     } catch (error) {
