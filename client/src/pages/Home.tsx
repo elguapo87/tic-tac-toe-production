@@ -2,6 +2,7 @@ import { useState } from "react"
 import Board from "../components/Board"
 import ScoreBoard from "../components/ScoreBoard";
 import ResetButton from "../components/ResetButton";
+import PlayOnlineBtn from "../components/PlayOnlineBtn";
 
 const Home = () => {
 
@@ -78,6 +79,7 @@ const Home = () => {
             <ScoreBoard scores={scores} xPlaying={xPlaying} gameOver={gameOver} winner={winner} />
             <Board board={board} onClickBox={gameOver ? () => {} : handleBoxClick} winningLine={winningLine} />
             <ResetButton resetBoard={resetBoard} gameOver={gameOver} />
+            <PlayOnlineBtn />
         </div>
     )
 }
