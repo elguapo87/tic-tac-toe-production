@@ -4,9 +4,24 @@ import http from "http";
 import cors from "cors";
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
+import { registerSocketServer } from "./lib/socket";
+import { Server as SocketIOServer } from "socket.io";
+import { setIO } from "./lib/socketServer";
 
 const app = express();
 const server = http.createServer(app);
+
+// Initialize Socket.IO
+const io = new SocketIOServer(server, {
+    cors: {
+        origin: "*"
+    }
+});
+
+setIO(io);
+
+// Register socket handlers 
+registerSocketServer(io);
 
 // Middleware setup
 app.use(express.json({ limit: "4mb" }));
@@ -29,7 +44,7 @@ const startServer = async () => {
         await connectDB();
         
         server.listen(PORT, () => {
-            console.log(`Server is running on PORT: ${PORT}`);
+            console.log(`Server + Socket.IO running on PORT: ${PORT}`);
         });
 
     } catch (error) {
