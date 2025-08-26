@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import connectDB from "./config/db";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 const server = http.createServer(app);
@@ -18,6 +19,8 @@ app.use(cors(corsOptions));
 app.use("/api/status", (req, res) => {
     res.send("Server is live");
 });
+
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 
