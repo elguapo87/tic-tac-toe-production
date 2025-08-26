@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 
 const PlayOnlineBtn = () => {
 
-    const authUser = false;
+    const authUser = true;
    
     const navigate = useNavigate();
 
