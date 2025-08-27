@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { io, type Socket } from "socket.io-client";
 
 type UserData = {
     _id: string;
@@ -10,7 +11,10 @@ type UserData = {
 };
 
 interface AppContextType {
-
+    authUser: UserData | null;
+    setAuthUser: React.Dispatch<React.SetStateAction<UserData | null>>;
+    login: (state: "Login" | "Sign Up", credentials: Partial<UserData>) => Promise<void>;
+    logout: () => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -22,6 +26,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [token, setToken] = useState(localStorage.getItem("token") ? localStorage.getItem("token") : null);
     const [authUser, setAuthUser] = useState<UserData | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
+    const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
     // Function to check if user is authenticated and if so, set the user data and connect the socketto check user auth
     const checkAuth = async () => {
@@ -32,6 +38,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (data.success) {
                 setAuthUser(data.user);
+                setSocket(data.user);
 
             } else {
                 toast.error(data.message);
@@ -51,10 +58,11 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (data.success) {
                 setAuthUser(data.userData);
-                localStorage.setItem("token", data.token);
+                connectSocket(data.userData);
                 setToken(data.token);
+                localStorage.setItem("token", data.token);
                 toast.success(data.message);
-                
+
             } else {
                 toast.error(data.message);
             }
@@ -65,13 +73,49 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const logout = async () => {
+        localStorage.removeItem("token");
+        setToken(null);
+        setAuthUser(null);
+        setOnlineUsers([]);
+        socket?.disconnect();
+        toast.success("Logged out successfully");
+    };
+
+    // Conncect socket function to handle socket connection and online users update
+    const connectSocket = (userData: { _id: string }) => {
+        if (!userData || socket?.connect) return;
+        const newSocket = io(backendUrl, {
+            query: {
+                userId: userData._id
+            }
+        });
+        newSocket.connect();
+        setSocket(newSocket);
+
+        newSocket.on("getOnlineUsers", (userIds) => {
+            setOnlineUsers(userIds);
+        });
+    };
+
     useEffect(() => {
         if (token) {
             checkAuth();
         }
-    }, [token])
+    }, [token]);
 
-    const value = {};
+    useEffect(() => {
+        return () => {
+            socket?.disconnect();
+        };
+    }, [socket]);
+
+    const value = {
+        authUser, setAuthUser,
+        login,
+        logout,
+
+    };
 
     return (
         <AppContext.Provider value={value}>
