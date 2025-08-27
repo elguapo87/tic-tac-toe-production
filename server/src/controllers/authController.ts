@@ -100,3 +100,17 @@ export const chechAuth = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({ success: false, message: errMessage });
     }
 };
+
+export const getUsers = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?._id;
+
+        const filteredUsers = await userModel.find({_id: { $ne: userId } }).select("-password");
+
+        res.json({ success: true, filteredUsers });
+
+    } catch (error) {
+        const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        res.status(500).json({ success: false, message: errMessage });
+    }
+};
