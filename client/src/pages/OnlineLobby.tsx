@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
 import { useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
+import Profile from "../components/Profile";
 
 const OnlineLobby = () => {
 
@@ -24,7 +25,8 @@ const OnlineLobby = () => {
 
     return (
         <div className="relative min-h-screen bg-gray-700 text-white px-4 md:px-8 flex md:items-center">
-            <div onClick={() => navigate("/")} className="absolute top-3 right-3 md:top-4 md:right-4 bg-stone-100 text-gray-600 rounded-full w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold text-xl cursor-pointer hover:bg-stone-200 transition-all duration-200">X</div>
+
+            <Profile />
 
             <div className="flex items-start w-full max-md:mt-10">
                 <div className="flex-1">
