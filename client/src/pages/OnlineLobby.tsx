@@ -8,16 +8,15 @@ const OnlineLobby = () => {
 
     const context = useContext(AppContext);
     if (!context) throw new Error("OnlineLobby must be within AppContextProvider");
-    const { authUser, users, onlineUsers, getUsers } = context;
+    const { authUser, users, onlineUsers, getUsers, startGame } = context;
 
     const navigate = useNavigate();
 
     const filteredUsers = users.filter((user) => onlineUsers.includes(user._id));
 
-    const handleChallenge = (userId: string) => {
-        navigate("/online");
+    const handleStartGame = async (userId: string) => {
+        await startGame(userId);
     };
-    
 
     useEffect(() => {
         getUsers();
@@ -35,19 +34,19 @@ const OnlineLobby = () => {
 
                         {
                             filteredUsers.length === 0
-                               ?
-                            <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">Users will appear here when they log in</h2>
-                               :
-                            filteredUsers.map((user) => (
-                                <div key={user._id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
-                                    <div className="flex items-center space-x-3">
-                                        <img src={user.userImg || assets.avatar_icon} alt={user.name} className="w-10 h-10 rounded-full" />
-                                        <span className="text-lg">{user.name}</span>
-                                    </div>
+                                ?
+                                <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">Users will appear here when they log in</h2>
+                                :
+                                filteredUsers.map((user) => (
+                                    <div key={user._id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
+                                        <div className="flex items-center space-x-3">
+                                            <img src={user.userImg || assets.avatar_icon} alt={user.name} className="w-10 h-10 rounded-full" />
+                                            <span className="text-lg">{user.name}</span>
+                                        </div>
 
-                                    <button onClick={() => handleChallenge(user._id)} className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Challange</button>
-                                </div>
-                            ))
+                                        <button onClick={() => handleStartGame(user._id)} className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Challange</button>
+                                    </div>
+                                ))
                         }
 
                     </div>
