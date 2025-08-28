@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     userImg: {
         type: String,
         default: ""
+    },
+    inGame: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

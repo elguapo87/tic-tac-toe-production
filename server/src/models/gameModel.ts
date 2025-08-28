@@ -23,6 +23,10 @@ const gameSchema = new mongoose.Schema({
     isOver: {
         type: Boolean,
         default: false
+    },
+    winningLine: {
+        type: [Number],
+        default: null
     }
 }, { timestamps: true });
 

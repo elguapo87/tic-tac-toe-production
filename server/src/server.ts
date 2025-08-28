@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes";
 import { registerSocketServer } from "./lib/socket";
 import { Server as SocketIOServer } from "socket.io";
 import { setIO } from "./lib/socketServer";
+import gameRoutes from "./routes/gameRoutes";
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +37,7 @@ app.use("/api/status", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/game", gameRoutes);
 
 const PORT = process.env.PORT || 5000;
 
