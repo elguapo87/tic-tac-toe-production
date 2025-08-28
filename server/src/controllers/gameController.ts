@@ -63,3 +63,56 @@ export const makeMove = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({ success: false, message: errMessage });
     }
 };
+
+export const startGame = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?._id as string;
+        const { opponentId } = req.body;
+
+        if (!opponentId) {
+            return res.json({ success: false, message: "Opponent ID is required" });
+        }
+
+        if (opponentId === userId.toString()) {
+            return res.json({ success: false, message: "You cannot play against yourself" });
+        }
+
+        const newGame = await gameModel.create({
+            players: [userId, opponentId],
+            board: Array(9).fill(null),
+            xPlaying: true,
+            winner: null,
+            isOver: false
+        });
+
+        await newGame.populate("players", "name email userImg");
+
+        await userModel.updateMany(
+            { _id: { $in: [userId, opponentId] } },
+            { $set: { inGame: true } }
+        );
+
+        // emit socket event to both players
+        const io = getIO();
+        [newGame.players[0], newGame.players[1]].forEach((player: any) => {
+            const playerId = player._id ? player._id.toString() : player.toString();
+            const socketId = userSocketMap[playerId];
+            if (socketId) {
+                io.to(socketId).emit("gameStarted", newGame);
+                console.log("Emitting gameStarted to", playerId, "->", socketId);
+            } else {
+                console.log("⚠️ No socket found for", playerId);
+            }
+        });
+
+        res.json({
+            success: true,
+            message: "Game started",
+            game: newGame,
+            opponent: opponentId
+        });
+
+    } catch (error) {
+
+    }
+};
