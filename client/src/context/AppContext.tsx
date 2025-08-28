@@ -13,7 +13,7 @@ type UserData = {
 interface AppContextType {
     authUser: UserData | null;
     setAuthUser: React.Dispatch<React.SetStateAction<UserData | null>>;
-    login: (state: "Login" | "Sign Up", credentials: Partial<UserData>) => Promise<void>;
+    login: (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => Promise<void>;
     logout: () => Promise<void>;
 };
 
@@ -50,7 +50,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Login function to handle user authentication and socket connection
-    const login = async (state: "Login" | "Sign Up", credentials: Partial<UserData>) => {
+    const login = async (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => {
         try {
             const endpoint = state === "Sign Up" ? "register" : "login";
 
