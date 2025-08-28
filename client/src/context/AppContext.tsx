@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { io, type Socket } from "socket.io-client";
 
 export type UserData = {
@@ -39,6 +40,7 @@ interface AppContextType {
     game: GameData | null;
     setGame: React.Dispatch<React.SetStateAction<GameData | null>>;
     makeMove: (gameId: string, boxIndex: number) => Promise<void>;
+    startGame: (opponentId: string) => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -56,6 +58,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [game, setGame] = useState<GameData | null>(null);
+
+    const navigate = useNavigate();
 
     // Function to check if user is authenticated and if so, set the user data and connect the socketto check user auth
     const checkAuth = async () => {
@@ -130,7 +134,24 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         newSocket.on("gameUpdated", (updatedGame: GameData) => {
             console.log("Game Updated", updatedGame);
             setGame(updatedGame);
-        })
+        });
+
+        newSocket.on("gameStarted", (newGame: GameData) => {
+            const normalizedGame = {
+                ...newGame,
+                players: newGame.players.map((p: any) => 
+                    typeof p === "string" ? p : p._id
+                )
+            };
+
+            setGame(normalizedGame);
+
+            // set opponent (the other player)
+            const opponentId = normalizedGame.players.find((id) => id !== userData._id);
+            const opponent = users.find((user) => user._id === opponentId) || null;
+            setSelectedUser(opponent);
+            navigate("/online")
+        });
     };
 
     // Function to get all users in OnlineLobby page
@@ -145,6 +166,26 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
             } else {
                 toast.error(data.message);
+            }
+
+        } catch (error) {
+            const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast.error(errMessage);
+        }
+    };
+
+    const startGame = async (opponentId: string) => {
+        try {
+            const { data } = await axios.post("/api/game/start", { opponentId }, {
+                headers: { token }
+            });
+
+            if (data.success) {
+                toast.success(data.message);
+
+            } else {
+                toast.error(data.message || "Could not start game");
+                return
             }
 
         } catch (error) {
@@ -194,7 +235,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         onlineUsers, setOnlineUsers,
         selectedUser, setSelectedUser,
         game, setGame,
-        makeMove
+        makeMove,
+        startGame
     };
 
     return (
