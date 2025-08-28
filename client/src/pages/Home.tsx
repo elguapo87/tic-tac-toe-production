@@ -1,10 +1,15 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import Board from "../components/Board"
 import ScoreBoard from "../components/ScoreBoard";
 import ResetButton from "../components/ResetButton";
 import PlayOnlineBtn from "../components/PlayOnlineBtn";
+import { AppContext } from "../context/AppContext";
 
 const Home = () => {
+
+    const appContext = useContext(AppContext);
+    if (!appContext) throw new Error("Home must be within AppContextProvider");
+    const { authUser } = appContext;
 
     const [board, setBoard] = useState(Array(9).fill(null));
     const [xPlaying, setXPlaying] = useState(true);
@@ -54,7 +59,7 @@ const Home = () => {
             if (board[a] && board[a] === board[b] && board[b] === board[c]) {
                 setGameOver(true);
                 setWinner(board[a]);
-                return { winner: board[a], line: [a, b, c]}
+                return { winner: board[a], line: [a, b, c] }
             }
         }
 
@@ -76,10 +81,25 @@ const Home = () => {
 
     return (
         <div className="relative flex flex-col">
+            {
+              !authUser                                     
+                 &&
+              <div className='max-md:block hidden'>
+                <PlayOnlineBtn />
+              </div>
+            }
+
             <ScoreBoard scores={scores} xPlaying={xPlaying} gameOver={gameOver} winner={winner} />
-            <Board board={board} onClickBox={gameOver ? () => {} : handleBoxClick} winningLine={winningLine} />
+            <Board board={board} onClickBox={gameOver ? () => { } : handleBoxClick} winningLine={winningLine} />
             <ResetButton resetBoard={resetBoard} gameOver={gameOver} />
-            <PlayOnlineBtn />
+
+            {
+                !authUser
+                   &&
+                <div className='max-md:hidden'>
+                    <PlayOnlineBtn />
+                </div>
+            }
         </div>
     )
 }
