@@ -3,14 +3,28 @@ import { createContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { io, type Socket } from "socket.io-client";
 
-type UserData = {
+export type UserData = {
     _id: string;
     name: string;
     email: string;
     userImg: string;
 };
 
+type GameData = {
+    _id: string;
+    players: string[];       // [playerXId, playerOId]
+    board: (string | null)[];
+    xPlaying: boolean;
+    winner: "X" | "O" | "draw" | null;
+    isOver: boolean;
+    opponentId?: string;
+    winningLine: [number] | null;
+};
+
+
 interface AppContextType {
+    socket: Socket | null;
+    setSocket: React.Dispatch<React.SetStateAction<Socket | null>>;
     authUser: UserData | null;
     setAuthUser: React.Dispatch<React.SetStateAction<UserData | null>>;
     login: (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => Promise<void>;
@@ -20,6 +34,11 @@ interface AppContextType {
     getUsers: () => Promise<void>;
     onlineUsers: string[];
     setOnlineUsers: React.Dispatch<React.SetStateAction<string[]>>;
+    selectedUser: UserData | null;
+    setSelectedUser: React.Dispatch<React.SetStateAction<UserData | null>>;
+    game: GameData | null;
+    setGame: React.Dispatch<React.SetStateAction<GameData | null>>;
+    makeMove: (gameId: string, boxIndex: number) => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -34,6 +53,9 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
     const [users, setUsers] = useState<UserData[]>([]);
+
+    const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+    const [game, setGame] = useState<GameData | null>(null);
 
     // Function to check if user is authenticated and if so, set the user data and connect the socketto check user auth
     const checkAuth = async () => {
@@ -84,6 +106,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         setToken(null);
         setAuthUser(null);
         setOnlineUsers([]);
+        setGame(null);
         socket?.disconnect();
         toast.success("Logged out successfully");
     };
@@ -102,6 +125,12 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         newSocket.on("getOnlineUsers", (userIds) => {
             setOnlineUsers(userIds);
         });
+
+        // useEffect-like listener for game updates 
+        newSocket.on("gameUpdated", (updatedGame: GameData) => {
+            console.log("Game Updated", updatedGame);
+            setGame(updatedGame);
+        })
     };
 
     // Function to get all users in OnlineLobby page
@@ -124,6 +153,25 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const makeMove = async (gameId: string, boxIndex: number) => {
+        try {
+            const { data } = await axios.post(`/api/game/make-move/${gameId}`, { boxIndex }, {
+                headers: { token }
+            });
+
+            if (data.success) {
+                setGame(data.game);
+
+            } else {
+                toast.error(data.message || "Invalid move");
+            }
+
+        } catch (error) {
+            const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast.error(errMessage);
+        }
+    };
+
     useEffect(() => {
         if (token) {
             checkAuth();
@@ -137,12 +185,16 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     }, [socket]);
 
     const value = {
+        socket, setSocket,
         authUser, setAuthUser,
         login,
         logout,
         users, setUsers,
         getUsers,
-        onlineUsers, setOnlineUsers
+        onlineUsers, setOnlineUsers,
+        selectedUser, setSelectedUser,
+        game, setGame,
+        makeMove
     };
 
     return (

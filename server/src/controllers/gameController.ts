@@ -21,7 +21,7 @@ export const makeMove = async (req: AuthenticatedRequest, res: Response) => {
         // Enforce turn logic
         const currentSymbol = game.xPlaying ? "X" : "O";
         const playerIndex = game.players.findIndex((p: string) => p.toString() === userId.toString());
-        if ((game.xPlaying && playerIndex !== 0) || (game.xPlaying && playerIndex !== 1)) {
+        if ((game.xPlaying && playerIndex !== 0) || (!game.xPlaying && playerIndex !== 1)) {
             return res.json({ success: false, message: "Not your turn" });
         }
 
