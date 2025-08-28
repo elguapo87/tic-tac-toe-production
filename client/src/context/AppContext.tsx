@@ -15,6 +15,11 @@ interface AppContextType {
     setAuthUser: React.Dispatch<React.SetStateAction<UserData | null>>;
     login: (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => Promise<void>;
     logout: () => Promise<void>;
+    users: UserData[];
+    setUsers: React.Dispatch<React.SetStateAction<UserData[]>>;
+    getUsers: () => Promise<void>;
+    onlineUsers: string[];
+    setOnlineUsers: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -28,6 +33,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [authUser, setAuthUser] = useState<UserData | null>(null);
     const [socket, setSocket] = useState<Socket | null>(null);
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+    const [users, setUsers] = useState<UserData[]>([]);
 
     // Function to check if user is authenticated and if so, set the user data and connect the socketto check user auth
     const checkAuth = async () => {
@@ -38,7 +44,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (data.success) {
                 setAuthUser(data.user);
-                setSocket(data.user);
+                connectSocket(data.user);
 
             } else {
                 toast.error(data.message);
@@ -84,18 +90,38 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Conncect socket function to handle socket connection and online users update
     const connectSocket = (userData: { _id: string }) => {
-        if (!userData || socket?.connect) return;
+        if (!userData || socket) return;
         const newSocket = io(backendUrl, {
             query: {
                 userId: userData._id
             }
         });
-        newSocket.connect();
+        // newSocket.connect();
         setSocket(newSocket);
 
         newSocket.on("getOnlineUsers", (userIds) => {
             setOnlineUsers(userIds);
         });
+    };
+
+    // Function to get all users in OnlineLobby page
+    const getUsers = async () => {
+        try {
+            const { data } = await axios.get("/api/auth/get-users", {
+                headers: { token }
+            });
+
+            if (data.success) {
+                setUsers(data.filteredUsers);
+
+            } else {
+                toast.error(data.message);
+            }
+
+        } catch (error) {
+            const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast.error(errMessage);
+        }
     };
 
     useEffect(() => {
@@ -114,7 +140,9 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         authUser, setAuthUser,
         login,
         logout,
-
+        users, setUsers,
+        getUsers,
+        onlineUsers, setOnlineUsers
     };
 
     return (

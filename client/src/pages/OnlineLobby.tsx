@@ -1,25 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
+import { useContext, useEffect } from "react";
+import { AppContext } from "../context/AppContext";
 
 const OnlineLobby = () => {
 
+    const context = useContext(AppContext);
+    if (!context) throw new Error("OnlineLobby must be within AppContextProvider");
+    const { authUser, users, onlineUsers, getUsers } = context;
+
     const navigate = useNavigate();
 
-    const onlineUsers = [
-        { id: "1", name: "Alice", userImage: "https://i.pravatar.cc/40?u=alice" },
-        { id: "2", name: "Bob", userImage: "https://i.pravatar.cc/40?u=bob" },
-        { id: "3", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-
-        { id: "4", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-        { id: "5", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-        { id: "6", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-        { id: "7", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-        { id: "8", name: "Charlie", userImage: "https://i.pravatar.cc/40?u=charlie" },
-    ];
+    const filteredUsers = users.filter((user) => onlineUsers.includes(user._id));
 
     const handleChallenge = (userId: string) => {
         navigate("/online");
     };
+    
+
+    useEffect(() => {
+        getUsers();
+    }, [onlineUsers, authUser]);
 
     return (
         <div className="relative min-h-screen bg-gray-700 text-white px-4 md:px-8 flex md:items-center">
@@ -29,20 +30,27 @@ const OnlineLobby = () => {
                 <div className="flex-1">
                     <h1 className="text-2xl md:text-4xl font-bold mb-6 md:mb-10 text-center">Online Players</h1>
                     <div className="space-y-4 max-h-[400px] overflow-y-scroll pr-2">
-                        {onlineUsers.map((user) => (
-                            <div key={user.id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
-                                <div className="flex items-center space-x-3">
-                                    <img src={user.userImage} alt={user.name} className="w-10 h-10 rounded-full" />
-                                    <span className="text-lg">{user.name}</span>
-                                </div>
 
-                                <button onClick={() => handleChallenge(user.id)} className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Challange</button>
-                            </div>
-                        ))}
+                        {
+                            filteredUsers.length === 0
+                               ?
+                            <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">Users will appear here when they log in</h2>
+                               :
+                            filteredUsers.map((user) => (
+                                <div key={user._id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
+                                    <div className="flex items-center space-x-3">
+                                        <img src={user.userImg || assets.avatar_icon} alt={user.name} className="w-10 h-10 rounded-full" />
+                                        <span className="text-lg">{user.name}</span>
+                                    </div>
+
+                                    <button onClick={() => handleChallenge(user._id)} className="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded">Challange</button>
+                                </div>
+                            ))
+                        }
 
                     </div>
                 </div>
-                
+
                 <div className="flex-1 max-md:hidden flex justify-center">
                     <img className="" src={assets.tic_tac_toe} alt="" />
                 </div>
