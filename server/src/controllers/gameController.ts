@@ -92,8 +92,13 @@ export const startGame = async (req: AuthenticatedRequest, res: Response) => {
             { $set: { inGame: true } }
         );
 
-        // emit socket event to both players
         const io = getIO();
+
+        // Broadcast updated users list to everyone
+        const updatedUsers = await userModel.find({}, "name email userImg inGame");
+        io.emit("usersUpdated", updatedUsers);
+
+        // emit socket event to both players
         [newGame.players[0], newGame.players[1]].forEach((player: any) => {
             const playerId = player._id ? player._id.toString() : player.toString();
             const socketId = userSocketMap[playerId];
@@ -114,5 +119,60 @@ export const startGame = async (req: AuthenticatedRequest, res: Response) => {
 
     } catch (error) {
 
+    }
+};
+
+
+export const quitGame = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "User not found" });
+        }
+
+        // Find active game where this user is a player
+        const activeGame = await gameModel.findOne({
+            players: userId,
+            isOver: false
+        });
+
+        if (activeGame) {
+            const opponentId = activeGame.players.find(
+                (p: any) => p.toString() !== userId.toString()
+            );
+
+            // Delete the game
+            await gameModel.findByIdAndDelete(activeGame._id);
+
+            // Free both players
+            await userModel.updateMany(
+                { _id: { $in: activeGame.players } },
+                { $set: { inGame: false } }
+            );
+
+            const io = getIO();
+
+            // Broadcast updated users list to everyone
+            const updatedUsers = await userModel.find({}, "name email userImg inGame");
+            io.emit("usersUpdated", updatedUsers);
+
+            // Notify opponent in real time
+            if (opponentId) {
+                const opponentSocketId = userSocketMap[opponentId.toString()];
+                if (opponentSocketId) {
+                    io.to(opponentSocketId).emit("gameEnded", {
+                        message: "Opponent left the game",
+                    });
+                }
+            }
+        } else {
+            // No active game found → just free the user
+            await userModel.findByIdAndUpdate(userId, { inGame: false });
+        }
+
+        return res.json({ success: true, message: "You left the game" });
+    } catch (error) {
+        const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        return res.status(500).json({ success: false, message: errMessage });
     }
 };

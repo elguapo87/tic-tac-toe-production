@@ -12,7 +12,10 @@ const OnlineLobby = () => {
 
     const navigate = useNavigate();
 
-    const filteredUsers = users.filter((user) => onlineUsers.includes(user._id));
+    const filteredUsers = users
+        .filter((user) => onlineUsers.includes(user._id))
+        .filter((user) => !user.inGame)
+        .filter((user) => user._id !== authUser?._id);
 
     const handleStartGame = async (userId: string) => {
         await startGame(userId);
@@ -25,7 +28,7 @@ const OnlineLobby = () => {
     return (
         <div className="relative min-h-screen bg-gray-700 text-white px-4 md:px-8 flex md:items-center">
 
-            <Profile />
+            <Profile type="lobby" />
 
             <div className="flex items-start w-full max-md:mt-10">
                 <div className="flex-1">

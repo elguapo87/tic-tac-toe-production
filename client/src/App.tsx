@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast"
 import Login from "./pages/Login"
 import { useContext } from "react"
 import { AppContext } from "./context/AppContext"
+import OnlineGame from "./pages/OnlineGame"
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={!authUser ? <Home /> : <Navigate to="/lobby" />} />
         <Route path="/login" element={!authUser ? <Login /> : <Navigate to="/lobby" />} />
         <Route path="/lobby" element={authUser ? <OnlineLobby /> : <Navigate to="/" />} />
+        <Route path="/online" element={<OnlineGame />} />
       </Routes>
     </div>
   )

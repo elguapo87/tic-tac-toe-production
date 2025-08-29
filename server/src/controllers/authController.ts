@@ -3,6 +3,9 @@ import cloudinary from "../lib/cloudinary";
 import userModel, { UserDocument } from "../models/userModel";
 import bcrypt from "bcryptjs";
 import { genToken } from "../lib/genToken";
+import gameModel from "../models/gameModel";
+import { getIO } from "../lib/socketServer";
+import { userSocketMap } from "../lib/socket";
 
 interface AuthenticatedRequest extends Request {
     user?: UserDocument;
@@ -12,7 +15,7 @@ export const register = async (req: Request, res: Response) => {
     try {
         const { name, email, password, userImg } = req.body;
 
-        if (!name || !email || !password ) return res.json({ success: false, message: "Missing Details" });
+        if (!name || !email || !password) return res.json({ success: false, message: "Missing Details" });
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) return res.json({ success: false, message: "User already exists" });
@@ -31,7 +34,7 @@ export const register = async (req: Request, res: Response) => {
 
         const user = await userModel.create({
             name,
-            email, 
+            email,
             password: hashedPassword,
             userImg: imgUrl
         });
@@ -63,20 +66,20 @@ export const login = async (req: Request, res: Response) => {
         const existingUser = await userModel.findOne({ email });
         if (!existingUser) return res.json({ success: false, message: "User not exists" });
 
-        const matchPassword = await bcrypt.compare(password, existingUser.password);    
+        const matchPassword = await bcrypt.compare(password, existingUser.password);
         if (!matchPassword) return res.json({ success: false, message: "Wrong Credentials" });
-        
+
         const userData = {
             _id: existingUser._id,
-            name: existingUser.name,    
+            name: existingUser.name,
             email: existingUser.email,
             userImg: existingUser.userImg
         };
-        
+
         const token = genToken(existingUser._id);
 
         res.json({
-            success: true, 
+            success: true,
             message: "You are logged in",
             userData,
             token
@@ -92,7 +95,7 @@ export const chechAuth = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const user = req.user;
         if (!user) return res.status(401).json({ success: false, message: "Unauthorized" })
-        
+
         res.status(200).json({ success: true, user });
 
     } catch (error) {
@@ -105,7 +108,7 @@ export const getUsers = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const userId = req.user?._id;
 
-        const filteredUsers = await userModel.find({_id: { $ne: userId } }).select("-password");
+        const filteredUsers = await userModel.find({ _id: { $ne: userId } }).select("-password");
 
         res.json({ success: true, filteredUsers });
 
@@ -114,3 +117,4 @@ export const getUsers = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({ success: false, message: errMessage });
     }
 };
+

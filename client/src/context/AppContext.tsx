@@ -9,6 +9,7 @@ export type UserData = {
     name: string;
     email: string;
     userImg: string;
+    inGame: boolean;
 };
 
 type GameData = {
@@ -41,6 +42,7 @@ interface AppContextType {
     setGame: React.Dispatch<React.SetStateAction<GameData | null>>;
     makeMove: (gameId: string, boxIndex: number) => Promise<void>;
     startGame: (opponentId: string) => Promise<void>;
+    quitGame: () => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,7 +75,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
                 connectSocket(data.user);
 
             } else {
-                toast.error(data.message);
+                logout();
             }
 
         } catch (error) {
@@ -115,9 +117,28 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         toast.success("Logged out successfully");
     };
 
+    const quitGame = async () => {
+        try {
+            const { data } = await axios.post("/api/game/quit", {}, {
+                headers: { token }
+            });
+
+            if (data.success) {
+                toast.success(data.message);
+                navigate("/lobby");
+
+            } else {
+                toast.error(data.message);
+            }
+
+        } catch (error) {
+            console.error("Failed to logout", error);
+        }
+    };
+
     // Conncect socket function to handle socket connection and online users update
     const connectSocket = (userData: { _id: string }) => {
-        if (!userData || socket) return;
+        if (!userData || socket?.connected) return;
         const newSocket = io(backendUrl, {
             query: {
                 userId: userData._id
@@ -139,7 +160,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         newSocket.on("gameStarted", (newGame: GameData) => {
             const normalizedGame = {
                 ...newGame,
-                players: newGame.players.map((p: any) => 
+                players: newGame.players.map((p: any) =>
                     typeof p === "string" ? p : p._id
                 )
             };
@@ -151,6 +172,17 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
             const opponent = users.find((user) => user._id === opponentId) || null;
             setSelectedUser(opponent);
             navigate("/online")
+        });
+
+        newSocket.on("usersUpdated", (updatedUsers: UserData[]) => {
+            setUsers(updatedUsers);
+        });
+
+        newSocket.on("gameEnded", ({ message }) => {
+            toast.error(message || "Game ended");
+            setGame(null);
+            setSelectedUser(null);
+            navigate("/lobby"); 
         });
     };
 
@@ -236,7 +268,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         selectedUser, setSelectedUser,
         game, setGame,
         makeMove,
-        startGame
+        startGame,
+        quitGame
     };
 
     return (
