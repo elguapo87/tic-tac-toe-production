@@ -102,8 +102,17 @@ export const startGame = async (req: AuthenticatedRequest, res: Response) => {
         [newGame.players[0], newGame.players[1]].forEach((player: any) => {
             const playerId = player._id ? player._id.toString() : player.toString();
             const socketId = userSocketMap[playerId];
+
             if (socketId) {
-                io.to(socketId).emit("gameStarted", newGame);
+                const isStarter = playerId === userId.toString();
+                const msg = isStarter
+                    ? "You started a game!"
+                    : "You have been challenged!";
+
+                io.to(socketId).emit("gameStarted", {
+                    game: newGame,
+                    message: msg
+                });
                 console.log("Emitting gameStarted to", playerId, "->", socketId);
             } else {
                 console.log("⚠️ No socket found for", playerId);
@@ -112,7 +121,6 @@ export const startGame = async (req: AuthenticatedRequest, res: Response) => {
 
         res.json({
             success: true,
-            message: "Game started",
             game: newGame,
             opponent: opponentId
         });
@@ -171,6 +179,7 @@ export const quitGame = async (req: AuthenticatedRequest, res: Response) => {
         }
 
         return res.json({ success: true, message: "You left the game" });
+
     } catch (error) {
         const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
         return res.status(500).json({ success: false, message: errMessage });

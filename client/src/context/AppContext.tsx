@@ -157,10 +157,10 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
             setGame(updatedGame);
         });
 
-        newSocket.on("gameStarted", (newGame: GameData) => {
+        newSocket.on("gameStarted", ({ game, message }) => {
             const normalizedGame = {
-                ...newGame,
-                players: newGame.players.map((p: any) =>
+                ...game,
+                players: game.players.map((p: any) =>
                     typeof p === "string" ? p : p._id
                 )
             };
@@ -168,9 +168,14 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
             setGame(normalizedGame);
 
             // set opponent (the other player)
-            const opponentId = normalizedGame.players.find((id) => id !== userData._id);
+            const opponentId = normalizedGame.players.find((id: string) => id !== userData._id);
             const opponent = users.find((user) => user._id === opponentId) || null;
             setSelectedUser(opponent);
+
+            if (message) {
+                toast.success(message);
+            }
+
             navigate("/online")
         });
 
@@ -213,7 +218,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
             });
 
             if (data.success) {
-                toast.success(data.message);
+                // toast.success(data.message);
 
             } else {
                 toast.error(data.message || "Could not start game");
