@@ -138,43 +138,52 @@ export const quitGame = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(400).json({ success: false, message: "User not found" });
         }
 
-        // Find active game where this user is a player
-        const activeGame = await gameModel.findOne({
-            players: userId,
-            isOver: false
+        // Find any game where this user is a player
+        const existingGame = await gameModel.findOne({
+            players: userId
         });
 
-        if (activeGame) {
-            const opponentId = activeGame.players.find(
+        if (existingGame) {
+            const opponentId = existingGame.players.find(
                 (p: any) => p.toString() !== userId.toString()
             );
 
-            // Delete the game
-            await gameModel.findByIdAndDelete(activeGame._id);
+            if (!existingGame.isOver) {
+                // ❌ Unfinished → delete it
+                await gameModel.findByIdAndDelete(existingGame._id);
+            } else {
+                // ✅ Finished → keep in DB, just mark players free
+                await userModel.updateMany(
+                    { _id: { $in: existingGame.players } },
+                    { $set: { inGame: false } }
+                );
+            }
 
-            // Free both players
+            // Free both players in both cases
             await userModel.updateMany(
-                { _id: { $in: activeGame.players } },
+                { _id: { $in: existingGame.players } },
                 { $set: { inGame: false } }
             );
 
             const io = getIO();
 
-            // Broadcast updated users list to everyone
+            // Broadcast updated users list
             const updatedUsers = await userModel.find({}, "name email userImg inGame");
             io.emit("usersUpdated", updatedUsers);
 
-            // Notify opponent in real time
+            // Notify opponent
             if (opponentId) {
                 const opponentSocketId = userSocketMap[opponentId.toString()];
                 if (opponentSocketId) {
                     io.to(opponentSocketId).emit("gameEnded", {
-                        message: "Opponent left the game",
+                        message: existingGame.isOver
+                            ? "Opponent left the finished game"
+                            : "Opponent left the game",
                     });
                 }
             }
         } else {
-            // No active game found → just free the user
+            // No game found → just free the user
             await userModel.findByIdAndUpdate(userId, { inGame: false });
         }
 
