@@ -1,8 +1,9 @@
 type Props = {
     value: string | number | null;
+    onClickBox: () => void;
 };
 
-const OnlineBox = ({ value }: Props) => {
+const OnlineBox = ({ value, onClickBox }: Props) => {
 
     const style =
         value === "X" 
@@ -10,9 +11,9 @@ const OnlineBox = ({ value }: Props) => {
             : "text-[rgb(44,135,255)]"; // O always blue
 
     return (
-        <div className={`bg-white border-none rounded-[10%] shadow-md w-20 h-20 text-center text-4xl md:text-5xl font-bold m-2 md:leading-[5rem] hover:shadow-lg font-[Fredoka] ${style }`}>
+        <button onClick={onClickBox} className={`bg-white border-none rounded-[10%] shadow-md w-20 h-20 text-center text-4xl md:text-5xl font-bold m-2 md:leading-[5rem] hover:shadow-lg font-[Fredoka] ${style }`}>
             {value}
-        </div>
+        </button>
     )
 }
 
