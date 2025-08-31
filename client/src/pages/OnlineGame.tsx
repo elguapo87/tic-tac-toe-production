@@ -3,12 +3,13 @@ import Profile from '../components/Profile'
 import { AppContext } from '../context/AppContext'
 import OnlineBoard from '../components/OnlineBoard';
 import OnlineScoreboard from '../components/OnlineScoreboard';
+import ResetBtn from '../components/ResetBtn';
 
 const OnlineGame = () => {
 
   const context = useContext(AppContext);
   if (!context) throw new Error("OnlineGame must be within AppContextProvider");
-  const { authUser, selectedUser, game, makeMove, users } = context;
+  const { authUser, game, makeMove, resetGame } = context;
 
   if (!game) {
     return (
@@ -37,12 +38,16 @@ const OnlineGame = () => {
     }
   };
 
+  const handleResetGame = async () => {
+    await resetGame(game._id);
+  };
 
   return (
     <div className='relative flex flex-col text-white'>
       <Profile type='game' />
       <OnlineScoreboard />
       <OnlineBoard board={game?.board} onClickBox={handleBoxClick} winningLine={game.winningLine} />
+      <ResetBtn handleResetGame={handleResetGame} />
     </div>
   )
 }

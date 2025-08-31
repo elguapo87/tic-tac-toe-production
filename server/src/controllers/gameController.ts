@@ -206,14 +206,23 @@ export const resetGame = async (req: AuthenticatedRequest, res: Response) => {
 
         // Only players can reset
         if (!oldGame.players.some((p: any) => p.toString() === userId.toString())) {
-            return res.status(403).json({ success: false, message: "Not authorized" });
+            return res.json({ success: false, message: "Not authorized" });
         }
+
+        if (!oldGame.isOver) {
+            return res.json({ success: false, message: "Game is not finished yet" });
+        }
+
+        const swappedPlayers = [...oldGame.players].reverse();
 
         // Create a new game with the same players
         const newGame = await gameModel.create({
-            players: oldGame.players,
+            players: swappedPlayers,
             board: Array(9).fill(null),
-            xPlaying: true
+            xPlaying: true,
+            isOver: false,
+            winner: null,
+            winningLine: null
         });
 
         await newGame.save();
