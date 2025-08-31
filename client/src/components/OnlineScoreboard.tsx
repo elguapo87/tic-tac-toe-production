@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import History from "./History";
 
 const OnlineScoreboard = () => {
 
     const context = useContext(AppContext);
     if (!context) throw new Error("OnlineScoreBoard must be within AppContextProvider");
-    const { game, users, authUser } = context;
+    const { game, users, authUser, selectedUser, getHistory, history, setShowHistory, showHistory } = context;
 
     const [scores, setScores] = useState({ xScore: 0, oScore: 0 });
 
@@ -59,10 +60,31 @@ const OnlineScoreboard = () => {
         : currentTurn === "X"
             ? COLOR_X
             : COLOR_O;
- 
+
+    const opponentId = authUser ? game.players.find((id: string) => id !== authUser._id) : undefined;
+
+    useEffect(() => {
+        const fetchHistory = async () => {
+            if (authUser && opponentId) {
+                await getHistory(authUser._id, opponentId);
+            }
+        };
+        fetchHistory();
+    }, [authUser, opponentId, game]);
+
     return (
         <div className="flex items-center gap-5 w-[20rem] text-[1rem] md:text-[1.5rem] mt-[5rem] mb-[1rem] md:mb-[2rem] mx-auto font-bold">
             <div className="w-full flex flex-col gap-3">
+
+                {
+                    history && history?.total > 0
+                      &&
+                    <button onClick={() => setShowHistory(true)} className="w-[70%] mb-3 md:mb-5 mx-auto bg-transparent border border-amber-400 text-white px-[1.5rem] py-[0.2rem] rounded-lg hover:bg-amber-400 hover:text-gray-100 transition-all ease-in duration-200 cursor-pointer">
+                        Game History
+                    </button>
+                }
+
+                {showHistory && <History />}
 
                 <div className="flex items-center gap-5">
                     {/* X Player */}

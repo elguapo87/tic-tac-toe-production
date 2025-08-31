@@ -268,7 +268,7 @@ export const getHistory = async (req: Request, res: Response) => {
             recent: games.slice(0, 10)
         };
 
-        res.json({ success: true, stats })
+        res.json({ success: true, stats });
 
     } catch (error) {
         console.error("Failed to get stats:", error);

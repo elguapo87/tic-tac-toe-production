@@ -55,6 +55,8 @@ interface AppContextType {
     history: HistoryData | null;
     setHistory: React.Dispatch<React.SetStateAction<HistoryData | null>>;
     getHistory: (user1Id: string, user2Id: string) => Promise<void>;
+    showHistory: boolean;
+    setShowHistory: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -73,6 +75,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [game, setGame] = useState<GameData | null>(null);
     const [history, setHistory] = useState<HistoryData | null>(null);
+    const [showHistory, setShowHistory] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
@@ -288,6 +291,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
             if (data.success) {
                 setHistory(data.stats);
+                
             } else {
                 toast.error(data.message);
             }
@@ -325,7 +329,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         quitGame,
         resetGame,
         history, setHistory,
-        getHistory
+        getHistory,
+        showHistory, setShowHistory
     };
 
     return (
