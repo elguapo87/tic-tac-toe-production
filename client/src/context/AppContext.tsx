@@ -43,6 +43,7 @@ interface AppContextType {
     makeMove: (gameId: string, boxIndex: number) => Promise<void>;
     startGame: (opponentId: string) => Promise<void>;
     quitGame: () => Promise<void>;
+    resetGame: (gameId: string) => Promise<void>; 
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -250,6 +251,23 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const resetGame = async (gameId: string) => {
+        try {
+            const { data } = await axios.post(`/api/game/reset/${gameId}`, {}, {
+                headers: { token }
+            });
+
+            if (data.success) {
+                setGame(data.game);
+            } else {
+                toast.error(data.message);
+            }
+
+        } catch (error) {
+            toast.error("Failed to reset board");
+        }
+    };
+
     useEffect(() => {
         if (token) {
             checkAuth();
@@ -274,7 +292,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         game, setGame,
         makeMove,
         startGame,
-        quitGame
+        quitGame,
+        resetGame
     };
 
     return (

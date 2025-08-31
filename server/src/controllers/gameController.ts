@@ -126,7 +126,8 @@ export const startGame = async (req: AuthenticatedRequest, res: Response) => {
         });
 
     } catch (error) {
-
+        const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        return res.status(500).json({ success: false, message: errMessage });
     }
 };
 
