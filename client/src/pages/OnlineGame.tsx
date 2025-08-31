@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import Profile from '../components/Profile'
 import { AppContext } from '../context/AppContext'
 import OnlineBoard from '../components/OnlineBoard';
@@ -42,7 +42,7 @@ const OnlineGame = () => {
     <div className='relative flex flex-col text-white'>
       <Profile type='game' />
       <OnlineScoreboard />
-      <OnlineBoard board={game?.board} onClickBox={handleBoxClick} />
+      <OnlineBoard board={game?.board} onClickBox={handleBoxClick} winningLine={game.winningLine} />
     </div>
   )
 }
