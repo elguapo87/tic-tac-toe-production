@@ -194,3 +194,40 @@ export const quitGame = async (req: AuthenticatedRequest, res: Response) => {
         return res.status(500).json({ success: false, message: errMessage });
     }
 };
+
+export const resetGame = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?._id as string;
+        const { gameId } = req.params;
+
+        const oldGame = await gameModel.findById(gameId);
+        if (!oldGame) return res.json({ success: false, message: "Game not found" });
+
+        // Only players can reset
+        if (!oldGame.players.some((p: any) => p.toString() === userId.toString())) {
+            return res.status(403).json({ success: false, message: "Not authorized" });
+        }
+
+        // Create a new game with the same players
+        const newGame = await gameModel.create({
+            players: oldGame.players,
+            board: Array(9).fill(null),
+            xPlaying: true
+        });
+
+        await newGame.save();
+
+        // Emit update to both players
+        const io = getIO();
+        oldGame.players.forEach((pId: string) => {
+            const sId = userSocketMap[pId];
+            if (sId) io.to(sId).emit("gameUpdated", newGame);
+        });
+
+        res.json({ success: true, game: newGame })
+
+    } catch (error) {
+        console.error("Reset game error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
