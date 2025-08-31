@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import Profile from '../components/Profile'
 import { AppContext } from '../context/AppContext'
 import OnlineBoard from '../components/OnlineBoard';
+import OnlineScoreboard from '../components/OnlineScoreboard';
 
 const OnlineGame = () => {
 
@@ -40,6 +41,7 @@ const OnlineGame = () => {
   return (
     <div className='relative flex flex-col text-white'>
       <Profile type='game' />
+      <OnlineScoreboard />
       <OnlineBoard board={game?.board} onClickBox={handleBoxClick} />
     </div>
   )
