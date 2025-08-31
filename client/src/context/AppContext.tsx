@@ -23,6 +23,14 @@ type GameData = {
     winningLine: [number] | null;
 };
 
+type HistoryData = {
+    total: number;
+    draws: number;
+    user1Wins: number;
+    user2Wins: number;
+    recent: any[];
+};
+
 
 interface AppContextType {
     socket: Socket | null;
@@ -43,7 +51,10 @@ interface AppContextType {
     makeMove: (gameId: string, boxIndex: number) => Promise<void>;
     startGame: (opponentId: string) => Promise<void>;
     quitGame: () => Promise<void>;
-    resetGame: (gameId: string) => Promise<void>; 
+    resetGame: (gameId: string) => Promise<void>;
+    history: HistoryData | null;
+    setHistory: React.Dispatch<React.SetStateAction<HistoryData | null>>;
+    getHistory: (user1Id: string, user2Id: string) => Promise<void>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -61,6 +72,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [game, setGame] = useState<GameData | null>(null);
+    const [history, setHistory] = useState<HistoryData | null>(null);
 
     const navigate = useNavigate();
 
@@ -268,6 +280,24 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         }
     };
 
+    const getHistory = async (user1Id: string, user2Id: string) => {
+        try {
+            const { data } = await axios.get(`/api/game/history/${user1Id}/${user2Id}`, {
+                headers: { token }
+            });
+
+            if (data.success) {
+                setHistory(data.stats);
+            } else {
+                toast.error(data.message);
+            }
+
+        } catch (error) {
+            const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+            toast.error(errMessage);
+        }
+    };
+
     useEffect(() => {
         if (token) {
             checkAuth();
@@ -293,7 +323,9 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         makeMove,
         startGame,
         quitGame,
-        resetGame
+        resetGame,
+        history, setHistory,
+        getHistory
     };
 
     return (
