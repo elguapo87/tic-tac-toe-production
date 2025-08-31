@@ -241,3 +241,37 @@ export const resetGame = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({ success: false, message: "Server error" });
     }
 };
+
+export const getHistory = async (req: Request, res: Response) => {
+    try {
+        const { user1Id, user2Id } = req.params;
+
+        const games = await gameModel.find({
+            players: { $all: [user1Id, user2Id] },
+            isOver: true
+        }).sort({ createdAt: -1 });
+
+        const stats = {
+            total: games.length,
+            draws: games.filter((game) => game.winner === "draw").length,
+
+            user1Wins: games.filter((game) =>
+                (game.winner === "X" && game.players[0].toString() === user1Id) ||
+                (game.winner === "O" && game.players[1].toString() === user1Id)
+            ).length,
+
+            user2Wins: games.filter((game) =>
+                (game.winner === "X" && game.players[0].toString() === user2Id) ||
+                (game.winner === "O" && game.players[1].toString() === user2Id)
+            ).length,
+
+            recent: games.slice(0, 10)
+        };
+
+        res.json({ success: true, stats })
+
+    } catch (error) {
+        console.error("Failed to get stats:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
