@@ -5,7 +5,7 @@ type Props = {
 
 const ResetButton = ({ resetBoard, gameOver }: Props) => {
   return (
-    <button onClick={resetBoard} className="border-none rounded-[0.5rem] bg-[rgb(0,110,255)] text-white text-[2rem] py-[0.5rem] px-[1rem] my-[2rem] mx-auto block cursor-pointer">
+    <button onClick={resetBoard} className="border-none rounded-[0.5rem] bg-[rgb(0,110,255)] text-white text-[2rem] py-[0.5rem] px-[1rem] my-[2rem] mx-auto block hover:bg-blue-500 hover:scale-105 hover:text-stone-100 transition-all duration-300 cursor-pointer">
       {!gameOver ? "Reset" : "Play Again"}
     </button>
   )

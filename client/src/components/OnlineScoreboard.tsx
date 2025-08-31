@@ -6,7 +6,7 @@ const OnlineScoreboard = () => {
 
     const context = useContext(AppContext);
     if (!context) throw new Error("OnlineScoreBoard must be within AppContextProvider");
-    const { game, users, authUser, selectedUser, getHistory, history, setShowHistory, showHistory } = context;
+    const { game, users, authUser, getHistory, history, setShowHistory, showHistory } = context;
 
     const [scores, setScores] = useState({ xScore: 0, oScore: 0 });
 

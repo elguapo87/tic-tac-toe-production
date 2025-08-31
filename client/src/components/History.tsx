@@ -5,7 +5,7 @@ const History = () => {
 
     const context = useContext(AppContext);
     if (!context) throw new Error("History must be within AppContextProvider");
-    const { authUser, selectedUser, setShowHistory, getHistory, history, game, users } = context;
+    const { authUser, setShowHistory, getHistory, history, game, users } = context;
 
     const opponentId = authUser ? game?.players.find((id: string) => id !== authUser._id) : undefined;
     const opponent = users.find((user) => user._id === opponentId);
@@ -60,7 +60,7 @@ const History = () => {
                             <div>
                                 <p className="text-sm text-gray-300">
                                     {new Date(game.createdAt).toLocaleString()}{" "}
-                                    {new Date(game.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                    {/* {new Date(game.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} */}
                                 </p>
 
                                 <p className="font-semibold">
@@ -83,7 +83,7 @@ const History = () => {
                                     return (
                                         <div
                                             key={i}
-                                            className={`flex items-center justify-center text-xs font-bold rounded ${isWinning ? "bg-amber-400 text-black" : "bg-gray-600"}`}
+                                            className={`flex items-center justify-center text-xs font-bold rounded ${isWinning ? "bg-green-300 text-black" : "bg-gray-600"}`}
                                         >
                                             {cell || ""}
                                         </div>
