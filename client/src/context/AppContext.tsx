@@ -69,6 +69,8 @@ interface AppContextType {
     getHistory: (user1Id: string, user2Id: string) => Promise<void>;
     showHistory: boolean;
     setShowHistory: React.Dispatch<React.SetStateAction<boolean>>;
+    loadingUsers: boolean;
+    setLoadingUsers: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -88,6 +90,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     const [game, setGame] = useState<GameData | null>(null);
     const [history, setHistory] = useState<HistoryData | null>(null);
     const [showHistory, setShowHistory] = useState<boolean>(false);
+    const [loadingUsers, setLoadingUsers] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
@@ -222,6 +225,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     // Function to get all users in OnlineLobby page
     const getUsers = async () => {
         try {
+            setLoadingUsers(true)
             const { data } = await axios.get("/api/auth/get-users", {
                 headers: { token }
             });
@@ -236,6 +240,9 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         } catch (error) {
             const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
             toast.error(errMessage);
+
+        } finally {
+            setLoadingUsers(false);
         }
     };
 
@@ -342,7 +349,8 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
         resetGame,
         history, setHistory,
         getHistory,
-        showHistory, setShowHistory
+        showHistory, setShowHistory,
+        loadingUsers, setLoadingUsers
     };
 
     return (
