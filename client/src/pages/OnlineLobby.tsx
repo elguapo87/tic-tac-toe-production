@@ -2,7 +2,6 @@ import assets from "../assets/assets";
 import { useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import Profile from "../components/Profile";
-import Loader from "../components/Loader";
 
 const OnlineLobby = () => {
 
@@ -35,12 +34,9 @@ const OnlineLobby = () => {
 
                         {
                             filteredUsers.length === 0
-                                  ?
-                                <div className="flex flex-col items-center gap-5">
-                                    <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">Players will appear here when they log in</h2> 
-                                    <Loader />
-                                </div>
-                                  :
+                                ?
+                                <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">Users will appear here when they log in</h2>
+                                :
                                 filteredUsers.map((user) => (
                                     <div key={user._id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
                                         <div className="flex items-center space-x-3">
