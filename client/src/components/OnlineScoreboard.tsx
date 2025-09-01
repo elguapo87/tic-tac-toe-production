@@ -92,7 +92,7 @@ const OnlineScoreboard = () => {
                         className={`w-full text-center py-[0.3rem] md:py-[1rem] px-0 ${COLOR_X}
                             rounded-[0.5rem] shadow-[0px_0px_8px_#888] border-[5px] transition-all duration-300 ${xBorderClass}`}
                     >
-                        {authUser?._id === playerXId ? "You (X)" : playerXName} - {scores.xScore}
+                        {authUser?._id === playerXId ? "You (X)" : playerXName.length > 6 ? playerXName.slice(0, 8) + "..." : playerXName} - {scores.xScore}
                     </span>
 
                     {/* O Player */}
@@ -100,7 +100,7 @@ const OnlineScoreboard = () => {
                         className={`w-full text-center py-[0.3rem] md:py-[1rem] px-0 ${COLOR_O}
                             rounded-[0.5rem] shadow-[0px_0px_8px_#888] border-[5px] transition-all duration-300 ${oBorderClass}`}
                     >
-                        {authUser?._id === playerOId ? "You (O)" : playerOName} - {scores.oScore}
+                        {authUser?._id === playerOId ? "You (O)" : playerOName.length > 6 ? playerOName.slice(0, 8) + "..." : playerOName} - {scores.oScore}
                     </span>
                 </div>
 
