@@ -14,21 +14,29 @@ const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [image, setImage] = useState<File | null>(null);
+    const [loginId, setLoginId] = useState("");
     const navigate = useNavigate();
 
     const onSubmitHandler = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
 
         try {
-            if (!image) {
-                await login(currentState, { name, email, password });
+            if (currentState === "Login") {
+                // Login → use identifier + password
+                await login("Login", { identifier: loginId, password });
 
             } else {
-                const reader = new FileReader();
-                image && reader.readAsDataURL(image);
-                reader.onload = async () => {
-                    const base64Img = typeof reader.result === "string" ? reader.result : undefined;
-                    await login(currentState, { userImg: base64Img, name, email, password });
+                // Sign Up → handle optional image
+                if (!image) {
+                    await login("Sign Up", { name, email, password });
+
+                } else {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(image);
+                    reader.onload = async () => {
+                        const base64Img = typeof reader.result === "string" ? reader.result : undefined;
+                        await login("Sign Up", { userImg: base64Img, name, email, password });
+                    };
                 }
             }
 
@@ -61,10 +69,18 @@ const Login = () => {
                         </label>
 
                         <input onChange={(e) => setName(e.target.value)} value={name} type="text" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Name" required />
+                        <input onChange={(e) => setEmail(e.target.value)} value={email} type="email" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Email Address" required />
                     </>
                 }
 
-                <input onChange={(e) => setEmail(e.target.value)} value={email} type="email" placeholder="Email Address" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+                {/* LOGIN FIELD */}
+                {
+                    currentState === "Login"
+                      &&
+                    <input onChange={(e) => setLoginId(e.target.value)} value={loginId} type="text" placeholder="Name or Email Address" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+                }
+
+                {/* PASSWORD (shared for both Login + Sign Up) */}
                 <input onChange={(e) => setPassword(e.target.value)} value={password} type="password" placeholder="Password" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
 
                 <button type="submit" className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer">
@@ -73,7 +89,7 @@ const Login = () => {
 
                 {
                     currentState !== "Login"
-                       &&
+                    &&
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                         <input type="checkbox" required />
                         <p>Agree to the terms of use & privacy policy.</p>
@@ -84,9 +100,9 @@ const Login = () => {
                     {
                         currentState === "Sign Up"
                             ?
-                        <p className="text-sm text-gray-400">Already have an account? <span onClick={() => setCurrentState("Login")} className="font-medium text-violet-500 cursor-pointer">Login here</span></p>
+                            <p className="text-sm text-gray-400">Already have an account? <span onClick={() => setCurrentState("Login")} className="font-medium text-violet-500 cursor-pointer">Login here</span></p>
                             :
-                        <p className="text-sm text-gray-400">Create an account? <span onClick={() => setCurrentState("Sign Up")} className="font-medium text-violet-500 cursor-pointer">Click here</span></p>
+                            <p className="text-sm text-gray-400">Create an account? <span onClick={() => setCurrentState("Sign Up")} className="font-medium text-violet-500 cursor-pointer">Click here</span></p>
                     }
                 </div>
 

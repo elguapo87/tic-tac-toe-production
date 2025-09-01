@@ -12,6 +12,18 @@ export type UserData = {
     inGame: boolean;
 };
 
+type LoginCredentials = {
+    identifier: string;
+    password: string;
+};
+
+type RegisterCredentials = {
+    name: string;
+    email: string;
+    password: string;
+    userImg?: string;
+};
+
 type GameData = {
     _id: string;
     players: string[];       // [playerXId, playerOId]
@@ -37,7 +49,7 @@ interface AppContextType {
     setSocket: React.Dispatch<React.SetStateAction<Socket | null>>;
     authUser: UserData | null;
     setAuthUser: React.Dispatch<React.SetStateAction<UserData | null>>;
-    login: (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => Promise<void>;
+    login: (state: "Login" | "Sign Up", credentials: LoginCredentials | RegisterCredentials) => Promise<void>;
     logout: () => Promise<void>;
     users: UserData[];
     setUsers: React.Dispatch<React.SetStateAction<UserData[]>>;
@@ -100,7 +112,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     // Login function to handle user authentication and socket connection
-    const login = async (state: "Login" | "Sign Up", credentials: Partial<UserData> & { password: string }) => {
+    const login = async (state: "Login" | "Sign Up", credentials: LoginCredentials | RegisterCredentials) => {
         try {
             const endpoint = state === "Sign Up" ? "register" : "login";
 

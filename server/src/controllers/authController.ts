@@ -61,9 +61,15 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
-        const { email, password } = req.body;
+        const { identifier, password } = req.body;
 
-        const existingUser = await userModel.findOne({ email });
+        // Find user by email or name (case-insensitive)
+        const existingUser = await userModel.findOne({
+            $or: [
+                { email: { $regex: `^${identifier}$`, $options: 'i' } },
+                { name: { $regex: `^${identifier}$`, $options: 'i' } }
+            ]
+        });
         if (!existingUser) return res.json({ success: false, message: "User not exists" });
 
         const matchPassword = await bcrypt.compare(password, existingUser.password);
