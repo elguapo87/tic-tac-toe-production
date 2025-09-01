@@ -59,7 +59,7 @@ const OnlineLobby = () => {
                     <img className="" src={assets.tic_tac_toe} alt="" />
                 </div>
             </div>
-
+                        
         </div>
     )
 }
