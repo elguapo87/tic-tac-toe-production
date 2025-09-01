@@ -39,7 +39,10 @@ const OnlineLobby = () => {
                                 <Loader />
                             </div>
                         ) : filteredUsers.length === 0 ? (
-                            <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">No players online</h2>
+                            <>
+                                <h2 className="text-stone-100 md:text-center text-lg md:text-2xl">No players online</h2>
+                                <p className="text-gray-400 md:text-center">Players will appear here when they log in</p>
+                            </>
                         ) : (
                             filteredUsers.map((user) => (
                                 <div key={user._id} className="flex items-center justify-between bg-gray-800 p-4 rounded-lg shadow-md">
