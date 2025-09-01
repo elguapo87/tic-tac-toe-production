@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import assets from "../assets/assets";
 import { useContext, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
@@ -9,8 +8,6 @@ const OnlineLobby = () => {
     const context = useContext(AppContext);
     if (!context) throw new Error("OnlineLobby must be within AppContextProvider");
     const { authUser, users, onlineUsers, getUsers, startGame } = context;
-
-    const navigate = useNavigate();
 
     const filteredUsers = users
         .filter((user) => onlineUsers.includes(user._id))
