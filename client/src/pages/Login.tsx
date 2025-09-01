@@ -83,7 +83,7 @@ const Login = () => {
                 {/* PASSWORD (shared for both Login + Sign Up) */}
                 <input onChange={(e) => setPassword(e.target.value)} value={password} type="password" placeholder="Password" className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
 
-                <button type="submit" className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer">
+                <button type="submit" className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer hover:scale-101 transition-all duration-300">
                     {currentState === "Sign Up" ? "Create Account" : "Login Now"}
                 </button>
 

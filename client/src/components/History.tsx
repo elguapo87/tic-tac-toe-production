@@ -22,7 +22,7 @@ const History = () => {
     return (
         <div className="absolute top-0 left-0 w-full h-screen backdrop-blur-lg text-gray-600 flex items-start justify-center z-50">
             <div className="relative bg-stone-200 rounded-xl p-6 w-[90%] md:w-[40%] max-h-[85vh] flex flex-col mt-10">
-                <button onClick={() => setShowHistory(false)} className="absolute top-3 right-3 text-gray-600 hover:text-white">✕</button>
+                <button onClick={() => setShowHistory(false)} className="absolute top-3 right-3 text-gray-600 hover:text-white cursor-pointer">✕</button>
 
                 {/* TITLE */}
                 <h2 className="text-xl font-bold mb-4">Game History with {opponent?.name}</h2>

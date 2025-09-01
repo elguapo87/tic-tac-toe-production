@@ -213,11 +213,11 @@ export const resetGame = async (req: AuthenticatedRequest, res: Response) => {
             return res.json({ success: false, message: "Game is not finished yet" });
         }
 
-        const swappedPlayers = [...oldGame.players].reverse();
+        // const swappedPlayers = [...oldGame.players].reverse();
 
         // Create a new game with the same players
         const newGame = await gameModel.create({
-            players: swappedPlayers,
+            players: oldGame.players,
             board: Array(9).fill(null),
             xPlaying: true,
             isOver: false,
