@@ -73,7 +73,7 @@ const OnlineScoreboard = () => {
     }, [authUser, opponentId, game]);
 
     return (
-        <div className="flex items-center gap-5 w-[20rem] text-[1rem] md:text-[1.5rem] mt-[5rem] mb-[1rem] md:mb-[2rem] mx-auto font-bold">
+        <div className="flex items-center gap-5 w-[20rem] md:w-[23rem] text-[1rem] md:text-[1.5rem] mt-[5rem] mb-[1rem] md:mb-[2rem] mx-auto font-bold">
             <div className="w-full flex flex-col gap-3">
 
                 {
