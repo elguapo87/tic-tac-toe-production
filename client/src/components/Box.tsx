@@ -11,8 +11,7 @@ const Box = ({ value, onClickBox, isWinning }: Props) => {
   return (
     <button 
       onClick={onClickBox} 
-      className={`bg-white border-none rounded-[10%] shadow-md w-20 h-20 text-center text-5xl font-bold
-                    m-2 leading-[5rem] hover:shadow-lg font-[Fredoka] cursor-pointer ${style} ${isWinning ? "bg-green-300!" : ""}`}
+      className={`bg-white border-none rounded-[10%] shadow-md w-20 h-20 md:w-25 md:h-25 text-center text-5xl md:text-6xl font-bold leading-[5rem] hover:shadow-lg cursor-pointer font-[Fredoka] ${style} ${isWinning ? "bg-green-300!" : ""}`}
     >
       {value}
     </button>
