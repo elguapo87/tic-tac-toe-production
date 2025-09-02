@@ -24,7 +24,7 @@ const OnlineLobby = () => {
     }, [onlineUsers, authUser]);
 
     return (
-        <div className="relative min-h-screen bg-gray-700 text-white px-4 md:px-8 flex md:items-center">
+        <div className="relative h-[calc(100vh-44px)] bg-gray-700 text-white px-4 md:px-8 flex md:items-center">
 
             <Profile type="lobby" />
 
